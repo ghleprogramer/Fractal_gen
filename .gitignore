@@ -1,0 +1,6 @@
+/build/
+/err_tests/
+.vscode
+.DS_store
+fractal_gen
+frct_*
