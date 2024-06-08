@@ -102,7 +102,7 @@ int main(int argc, char **argv)
 	bpa.max = maxlooplength;
 	bpa.n = power;
 
-	int tasks_num = 500; // the number of tasks
+	int tasks_num = 100; // the number of tasks
 	work tasks[tasks_num];
 	
 	int task_size = (int)roundf(all_points / tasks_num);
