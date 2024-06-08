@@ -57,12 +57,10 @@ int main(int argc, char **argv)
 	// image ratio normalised x and y complex plane value sets
 	double xset_range = range * ((double)width / (double)hight);
 	double yset_range = range;
-	double *x = centered_rangelist(xcenter, xset_range, width);
-	double *y = centered_rangelist(ycenter, yset_range, hight);
-	if (x == NULL || y == NULL) {
-		printf("not enough space in memory");
-		return 2;
-	}
+	double x[width];
+	double y[hight];
+	centered_rangelist(x, xcenter, xset_range, width);
+	centered_rangelist(y, ycenter, yset_range, hight);
 
 	// complex points array
 	double complex *complex_ary = calloc(all_points, sizeof(double complex));	
@@ -81,8 +79,6 @@ int main(int argc, char **argv)
 			complex_ary[i*width + j] = x[j] + I*y[i];
 		}
 	}
-	free(x);
-	free(y);
 
 	// getting parallelized
 	pthread_t thread1;
@@ -102,7 +98,7 @@ int main(int argc, char **argv)
 	bpa.max = maxlooplength;
 	bpa.n = power;
 
-	int tasks_num = 100; // the number of tasks
+	int tasks_num = 10; // the number of tasks
 	work tasks[tasks_num];
 	
 	int task_size = (int)roundf(all_points / tasks_num);
@@ -110,9 +106,6 @@ int main(int argc, char **argv)
 	{
 		tasks[i].pi = i * task_size;
 		tasks[i].pf = (i+1) * task_size;
-		if (i == tasks_num - 1) { // on the last point
-			tasks[i].pf++;
-		}
 	}
 	
 	int tasks_track = 0;

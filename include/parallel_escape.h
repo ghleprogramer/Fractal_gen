@@ -7,7 +7,7 @@ struct para_args
 {
 	int *escape;
 	double complex *comp;
-	int (*frct)(complex, int, int);
+	int (*frct)(double complex, int, int);
 	int n;
 	int max;
 	int pi;
@@ -19,7 +19,7 @@ struct base_para_args
 {
 	int *escape;
 	double complex *comp;
-	int (*frct)(complex, int, int);
+	int (*frct)(double complex, int, int);
 	int n;
 	int max;
 };

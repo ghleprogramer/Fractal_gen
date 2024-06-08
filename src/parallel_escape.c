@@ -10,6 +10,7 @@ void *para_escape(void *in_args)
 	{
 		args.escape[i] = args.frct(args.comp[i], args.n, args.max);
 	}
+	return (void *) 0;
 }
 
 para_args arg_write(base_para_args bpa, work p)

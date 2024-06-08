@@ -4,22 +4,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-double *centered_rangelist(double list_center, double range, int size)
+void centered_rangelist(double list[], double list_center, double range, int size)
 {
-	// creates a list of values half the the range from the center
-	// ether side the length of size
-	double *list = malloc(sizeof(double) * size);
-	if (list == NULL) {
-		return NULL;
-	}
-
+	// takes array center point range array size
+	// sets array elements to ponts inside range centered at center neg to poss
+	// returns nothing
 	double list_start = list_center - (range / 2);
-	for (double i = 0, n = range / size, k = n / 2; i < size; i++)
+	for (float i = 0, n = range / size, k = n / 2; i < size; i++)
 	{
 		list[(int)i] = list_start + k;
 		k += n;
 	}
-	return list;
 }
 
 double *length_rangelist(double range[2], int length)
