@@ -25,15 +25,15 @@ struct base_para_args
 };
 typedef struct base_para_args base_para_args;
 
-struct work
+struct domain
 {
 	int pi;
 	int pf;
 };
-typedef struct work work;
+typedef struct domain domain;
 
 void *para_escape(void *args);
 
-para_args arg_write(base_para_args bpa, work p);
+para_args arg_write(base_para_args bpa, domain p);
 
 #endif

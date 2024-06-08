@@ -13,7 +13,7 @@ void *para_escape(void *in_args)
 	return (void *) 0;
 }
 
-para_args arg_write(base_para_args bpa, work p)
+para_args arg_write(base_para_args bpa, domain p)
 {
 	para_args arg;
 	arg.escape = bpa.escape;

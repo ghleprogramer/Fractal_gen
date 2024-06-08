@@ -80,16 +80,9 @@ int main(int argc, char **argv)
 		}
 	}
 
-	// getting parallelized
-	pthread_t thread1;
-	pthread_t thread2;
-	pthread_t thread3;
-	pthread_t thread4;
-
-	para_args t1args;
-	para_args t2args;
-	para_args t3args;
-	para_args t4args;
+	// parallelized
+	int thread_num = 4;
+	pthread_t threads[thread_num];
 
 	base_para_args bpa;
 	bpa.comp = complex_ary;
@@ -98,46 +91,43 @@ int main(int argc, char **argv)
 	bpa.max = maxlooplength;
 	bpa.n = power;
 
-	int tasks_num = 10; // the number of tasks
-	work tasks[tasks_num];
+	int tasks_num = 10;
+	domain tasks[tasks_num];
+	para_args task_args[tasks_num];
 	
 	int task_size = (int)roundf(all_points / tasks_num);
+	// domain stuct set for all tasks
 	for (int i = 0; i < tasks_num; i++)
 	{
 		tasks[i].pi = i * task_size;
 		tasks[i].pf = (i+1) * task_size;
 	}
-	
-	int tasks_track = 0;
-	while (tasks_track < tasks_num)
-	{	
-		if (tasks_track < tasks_num) {
-			t1args = arg_write(bpa, tasks[tasks_track]);
-			tasks_track++;
-			pthread_create(&thread1, NULL, para_escape, (void*)&t1args);
-		}
-		if (tasks_track < tasks_num) {
-			t2args = arg_write(bpa, tasks[tasks_track]);
-			tasks_track++;
-			pthread_create(&thread2, NULL, para_escape, (void*)&t2args);
-		}
-		if (tasks_track < tasks_num) {
-			t3args = arg_write(bpa, tasks[tasks_track]);
-			tasks_track++;
-			pthread_create(&thread3, NULL, para_escape, (void*)&t3args);
-		}
-		if (tasks_track < tasks_num) {
-			t4args = arg_write(bpa, tasks[tasks_track]);
-			tasks_track++;
-			pthread_create(&thread4, NULL, para_escape, (void*)&t4args);
-		}
-
-		pthread_join(thread1, NULL);
-		pthread_join(thread2, NULL);
-		pthread_join(thread3, NULL);
-		pthread_join(thread4, NULL);
+	// parallel tasks args struct written
+	for (int i = 0; i < tasks_num; i++)
+	{
+		task_args[i] = arg_write(bpa, tasks[i]);
 	}
 	
+	int task_indx = 0;
+	while (task_indx < tasks_num)
+	{
+		// run all threads on tasks from task indx
+		for (int thread_indx = 0; thread_indx < thread_num; thread_indx++)
+		{
+			// check if tasks done
+			if (!(task_indx < tasks_num)) {
+				break;
+			}
+			pthread_create(&threads[thread_indx], NULL,
+					para_escape, (void *)(&task_args[task_indx]));
+			task_indx++;
+		}
+		// join all
+		for (int thread_indx = 0; thread_indx < thread_num; thread_indx++)
+		{
+			pthread_join(threads[thread_indx], NULL);
+		}
+	}
 	free(complex_ary);
 
 	// grayscale image data array writen by color function
