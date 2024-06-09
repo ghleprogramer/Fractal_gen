@@ -1,4 +1,5 @@
 // a program for creating fractal images
+// cd build && make && cd .. && ./fractal_gen 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +19,7 @@
 int main(int argc, char **argv)
 {
 	// F fractal, Q quality, P power, M max iteration, C center, R range, J conjugate, H help
-	char *options = "F:Q:P:M:C:R:HhJ";
+	char *options = "F:Q:P:M:C:R:T:HhJ";
 	usage intput; // struct holds user options
 	char check = prase(argc, argv, options, &intput);
 	if (check != '0') {
@@ -37,6 +38,7 @@ int main(int argc, char **argv)
 	double xcenter = intput.xc;  
 	double ycenter = intput.yc;
 	double range = intput.r;
+	int thread_count = intput.t;
 	int conjugate = intput.conj;
 
 	const int all_points = width * hight;
@@ -72,61 +74,59 @@ int main(int argc, char **argv)
 	}
 
 	// set all complex points
-	for (int i = 0; i < hight; i++)
-	{
-		for (int j = 0; j < width; j++)
-		{
+	for (int i = 0; i < hight; i++) {
+		for (int j = 0; j < width; j++) {
 			complex_ary[i*width + j] = x[j] + I*y[i];
 		}
 	}
 
-	// parallelized
-	int thread_num = 4;
-	pthread_t threads[thread_num];
-
+	// parallel fractal calculation
+	// init threads and there checks
+	pthread_t threads[thread_count];
+	int thread_check[4];
+	for (int i = 0; i < thread_count; i++) {
+		thread_check[i] = thread_available;
+	}
+	// init base parallel args
 	base_para_args bpa;
 	bpa.comp = complex_ary;
 	bpa.escape = escape_ary;
 	bpa.frct = fractal_function;
 	bpa.max = maxlooplength;
-	bpa.n = power;
+	bpa.pow = power;
+	// init tasks
+	int tasks_count = 100;
+	domain task_domain[tasks_count];
+	para_args task_args[tasks_count];
 
-	int tasks_num = 10;
-	domain tasks[tasks_num];
-	para_args task_args[tasks_num];
-	
-	int task_size = (int)roundf(all_points / tasks_num);
-	// domain stuct set for all tasks
-	for (int i = 0; i < tasks_num; i++)
-	{
-		tasks[i].pi = i * task_size;
-		tasks[i].pf = (i+1) * task_size;
-	}
-	// parallel tasks args struct written
-	for (int i = 0; i < tasks_num; i++)
-	{
-		task_args[i] = arg_write(bpa, tasks[i]);
+	// init domain for all tasks
+	int task_size = (int)roundf(all_points / tasks_count);
+	for (int i = 0; i < tasks_count; i++) {
+		task_domain[i].pi = i * task_size;
+		task_domain[i].pf = (i+1) * task_size;
 	}
 	
+	// calculation loop
 	int task_indx = 0;
-	while (task_indx < tasks_num)
-	{
-		// run all threads on tasks from task indx
-		for (int thread_indx = 0; thread_indx < thread_num; thread_indx++)
-		{
-			// check if tasks done
-			if (!(task_indx < tasks_num)) {
-				break;
-			}
-			pthread_create(&threads[thread_indx], NULL,
-					para_escape, (void *)(&task_args[task_indx]));
+	int thread_indx = 0;
+	while (task_indx < tasks_count) {
+		// loop over threads
+		if (thread_indx >= thread_count) {
+			thread_indx = 0;
+		}
+		if (thread_check[thread_indx]) {
+			// if thread is available
+			thread_check[thread_indx] = thread_not_available;
+
+			task_args[task_indx] = arg_write(bpa, task_domain[task_indx], thread_check, thread_indx);
+			pthread_create(&threads[thread_indx], NULL, para_escape, (void *)&task_args[task_indx]);
 			task_indx++;
 		}
-		// join all
-		for (int thread_indx = 0; thread_indx < thread_num; thread_indx++)
-		{
-			pthread_join(threads[thread_indx], NULL);
-		}
+		thread_indx++;
+	}
+	// join all
+	for (int i = 0; i < thread_count; i++) {
+		pthread_join(threads[i], NULL);
 	}
 	free(complex_ary);
 
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 	uint8_t *stb_mono_ary = escape_stb_mono(hight, width, escape_ary);
 	if (stb_mono_ary == NULL || stb_ary == NULL) {
 		printf("not enough space in memory");
-		return 6;
+		return 7;
 	}
 
 	// writing the images via the stb image library(stb_image_write.h)

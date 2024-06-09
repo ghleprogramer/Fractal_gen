@@ -11,6 +11,7 @@ struct usage
 	double xc;  
 	double yc;  
 	double r;
+	int t;
 	int conj;
 };
 typedef struct usage usage;

@@ -8,10 +8,12 @@ struct para_args
 	int *escape;
 	double complex *comp;
 	int (*frct)(double complex, int, int);
-	int n;
+	int pow;
 	int max;
 	int pi;
 	int pf;
+	int thread_n;
+	int *done;
 };
 typedef struct para_args para_args;
 
@@ -20,7 +22,7 @@ struct base_para_args
 	int *escape;
 	double complex *comp;
 	int (*frct)(double complex, int, int);
-	int n;
+	int pow;
 	int max;
 };
 typedef struct base_para_args base_para_args;
@@ -34,6 +36,9 @@ typedef struct domain domain;
 
 void *para_escape(void *args);
 
-para_args arg_write(base_para_args bpa, domain p);
+para_args arg_write(base_para_args bpa, domain p, int *done, int t_n);
+
+#define thread_available 1
+#define thread_not_available 0
 
 #endif

@@ -13,6 +13,7 @@
 #define center_case 'C'
 #define power_case 'P'
 #define max_iter_case 'M'
+#define threads_case 'T'
 #define conjugate_case 'J'
 
 #define help_case 'H'
@@ -33,6 +34,7 @@ char prase(int argc, char **argv, char *options, usage *usage)
 	usage->yc = 0;
 	usage->r = 4;
 	usage->m = 100;
+	usage->t = 1;
 	usage->conj = 0;
 
 	// no options, use defaults
@@ -183,6 +185,19 @@ char prase_switch(int opt, usage *usage)
 		break;
 	}
 
+	case threads_case: {
+		usage->t = strtod(optarg, NULL);
+		// valid max iterations check
+		if (usage->t < 1)
+			return threads_case;
+		// using more threads than a device has can cause undefined behavior
+		// I think at it will least idk
+		if (usage->t > 12) {
+			printf("thread count has been set to %i if it is a mistake the program can be terminated by ctrl+c\n", usage->t);
+		}
+		break;
+	}
+
 	case conjugate_case:
 		// set conj if option used
 		usage->conj = 1;
@@ -225,6 +240,10 @@ void check_func(char c)
 
 	case range_case:
 		printf("invaled range -R pos num\n");
+		break;
+
+	case threads_case:
+		printf("invaled thread count -T pos num \n");
 		break;
 
 	case max_iter_case:
