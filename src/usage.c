@@ -92,7 +92,7 @@ char prase_switch(int opt, usage *usage)
 	case range_case: {
 		usage->r = strtod(optarg, NULL);
 		// valid range check
-		if (usage->r < 1)
+		if (usage->r <= 0)
 			return range_case;
 		break;
 	}
@@ -102,7 +102,7 @@ char prase_switch(int opt, usage *usage)
 		char *x = NULL;
 		char *y = NULL;
 		x = strtok(optarg, ",");
-		y = strtok(NULL, ",");
+		y = strtok(NULL, " ");
 		// when too many optargs or token error
 		if (strtok(NULL, ",") != NULL || x == NULL || y == NULL) {
 			return center_case;

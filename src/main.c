@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 	// parallel fractal calculation
 	// init threads and there checks
 	pthread_t threads[thread_count];
-	int thread_check[4];
+	int thread_check[thread_count];
 	for (int i = 0; i < thread_count; i++) {
 		thread_check[i] = thread_available;
 	}
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 	bpa.max = maxlooplength;
 	bpa.pow = power;
 	// init tasks
-	int tasks_count = 100;
+	int tasks_count = 100; // more or less randomly chosen
 	domain task_domain[tasks_count];
 	para_args task_args[tasks_count];
 
