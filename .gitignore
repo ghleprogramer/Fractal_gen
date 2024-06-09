@@ -1,5 +1,6 @@
 /build/
 /err_tests/
+/showcase/
 .vscode
 .DS_store
 fractal_gen

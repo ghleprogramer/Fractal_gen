@@ -14,7 +14,7 @@
 #define burningship_EscapeValue 60 // not proven but is a common good number to use
 
 int mandel_fractal(double complex c, int n, int maxlength)
-{    
+{
 	double complex z = c;
 	for (int i = 1; i < maxlength; i++)
 	{
