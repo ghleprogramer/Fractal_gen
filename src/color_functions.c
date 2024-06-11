@@ -6,11 +6,10 @@
 #include "../include/color_functions.h"
 
 double color_range[] = {0, 255};
-int color_var = 65;
 
 uint8_t *norm_escape_stb(int hight, int width, int *escape_ary)
 {
-	double *color_ary = length_rangelist(color_range, color_var);
+	double *color_ary = length_rangelist(color_range, color_gradient);
 
 	uint8_t *stb_ary = calloc(hight * width * 3, sizeof(uint8_t));
 	if (stb_ary == NULL || color_ary == NULL) {
@@ -20,7 +19,7 @@ uint8_t *norm_escape_stb(int hight, int width, int *escape_ary)
 	int stb_indx = 0;
 	for (int i = 0; i < hight * width; i++)
 	{
-		int color = round(color_ary[escape_ary[i] % color_var]);
+		int color = round(color_ary[escape_ary[i] % color_gradient]);
 		stb_ary[stb_indx] = color;
 		stb_indx++;
 		stb_ary[stb_indx] = color;

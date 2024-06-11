@@ -9,6 +9,7 @@
 #include "../include/fractal_functions.h"
 #include "../include/usage.h"
 #include "../include/main.h"
+#include "../include/color_functions.h"
 
 #define fractal_case 'F'
 int fractal_called = 0;
@@ -20,6 +21,7 @@ int fractal_called = 0;
 #define max_iter_case 'M'
 #define threads_case 'T'
 #define conjugate_case 'G'
+#define color_gradient_case 'L'
 
 #define help_case 'H'
 #define help_case_2 'h'
@@ -41,6 +43,8 @@ char prase(int argc, char **argv, char *options)
 	maxlooplength = 100;
 	thread_count = 1;
 	conjugate = 0;
+	
+	color_gradient = 75;
 	seed = 0.4 + I*0.4;
 
 	// no options, use defaults
@@ -199,6 +203,15 @@ char prase_switch(int opt)
 		break;
 	}
 
+	case color_gradient_case: {
+		color_gradient = strtod(optarg, NULL);
+		// valid max iterations check
+		if (color_gradient < 1)
+			return color_gradient_case;
+		break;
+	}
+
+
 	case quality_case: {
 		int optarg_len = strlen(optarg);
 		// valid quality check
@@ -319,6 +332,10 @@ void check_func(char c)
 
 	case max_iter_case:
 		printf("invaled number of iterations -M pos num\n");
+		break;
+
+	case color_gradient_case:
+		printf("invaled number of colors in gradiant -L pos num\n");
 		break;
 
 	case center_case:

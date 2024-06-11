@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 {
 	// F fractal, Q quality, P power, M max iteration,
 	// C center, R range, T thread count, J conjugate, H help
-	char *options = "F:Q:P:M:C:R:T:J:HhG";
+	char *options = "F:Q:P:M:C:R:T:J:L:HhG";
 	char check = prase(argc, argv, options);
 	if (check != '0') {
 		check_func(check);
