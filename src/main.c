@@ -12,16 +12,17 @@
 #include "../include/color_functions.h"
 #include "../include/usage.h"
 #include "../include/parallel_escape.h"
+#include "../include/main.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../include/stb_image_write.h"
 
 int main(int argc, char **argv)
 {
-	// F fractal, Q quality, P power, M max iteration, C center, R range, J conjugate, H help
-	char *options = "F:Q:P:M:C:R:T:HhJ";
-	usage intput; // struct holds user options
-	char check = prase(argc, argv, options, &intput);
+	// F fractal, Q quality, P power, M max iteration,
+	// C center, R range, T thread count, J conjugate, H help
+	char *options = "F:Q:P:M:C:R:T:J:HhG";
+	char check = prase(argc, argv, options);
 	if (check != '0') {
 		check_func(check);
 		return 1;
@@ -29,32 +30,8 @@ int main(int argc, char **argv)
 
 	printf("this is the good good fractal creation software made by ghamdi lmt\n");
 	
-	// image and fractal values from usage struct
-	int hight = intput.h;
-	int width = intput.w;
-	char fractal = intput.f;
-	int power = intput.p;
-	int maxlooplength = intput.m;
-	double xcenter = intput.xc;  
-	double ycenter = intput.yc;
-	double range = intput.r;
-	int thread_count = intput.t;
-	int conjugate = intput.conj;
-
-	const int all_points = width * hight;
-
-	// Declaration of function pointer variable (thanks gpt)
-	int(*fractal_function)(double complex c, int n, int maxlength);
-	// chosing fractal function
-	if (fractal == 'M' && conjugate) {
-		fractal_function = conj_mandel_fractal;
-	} else if (fractal == 'M') {
-		fractal_function = mandel_fractal;
-	} else if (fractal == 'B' && conjugate) {
-		fractal_function = conj_ship_fractal;
-	} else if (fractal == 'B') {
-		fractal_function = ship_fractal;
-	}
+	// sets the farctal_function variable
+	set_fractal();
 
 	// image ratio normalised x and y complex plane value sets
 	double xset_range = range * ((double)width / (double)hight);
@@ -64,10 +41,12 @@ int main(int argc, char **argv)
 	centered_rangelist(x, xcenter, xset_range, width);
 	centered_rangelist(y, ycenter, yset_range, hight);
 
-	// complex points array
-	double complex *complex_ary = calloc(all_points, sizeof(double complex));	
-	// escape array holds the number of itertions for complex point to escape
-	int *escape_ary = calloc(all_points, sizeof(int));
+	const int all_points = width * hight;
+
+	// init complex points array
+	complex_ary = calloc(all_points, sizeof(double complex));	
+	// init escape array
+	escape_ary = calloc(all_points, sizeof(int));
 	if (escape_ary == NULL || complex_ary == NULL) {
 		printf("not enough space in memory");
 		return 4;
@@ -87,13 +66,6 @@ int main(int argc, char **argv)
 	for (int i = 0; i < thread_count; i++) {
 		thread_check[i] = thread_available;
 	}
-	// init base parallel args
-	base_para_args bpa;
-	bpa.comp = complex_ary;
-	bpa.escape = escape_ary;
-	bpa.frct = fractal_function;
-	bpa.max = maxlooplength;
-	bpa.pow = power;
 	// init tasks
 	int tasks_count = 100; // more or less randomly chosen
 	domain task_domain[tasks_count];
@@ -118,7 +90,7 @@ int main(int argc, char **argv)
 			// if thread is available
 			thread_check[thread_indx] = thread_not_available;
 
-			task_args[task_indx] = arg_write(bpa, task_domain[task_indx], thread_check, thread_indx);
+			task_args[task_indx] = arg_write(task_domain[task_indx], thread_check, thread_indx);
 			pthread_create(&threads[thread_indx], NULL, para_escape, (void *)&task_args[task_indx]);
 			task_indx++;
 		}
