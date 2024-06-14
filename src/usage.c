@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <getopt.h>
 #include <complex.h>
+#include <unistd.h>
 #include "../include/fractal_functions.h"
 #include "../include/usage.h"
 #include "../include/main.h"
@@ -269,8 +270,9 @@ char prase_switch(int opt)
 			return threads_case;
 		// using more threads than a device has can cause undefined behavior
 		// I think at it will least idk
-		if (thread_count > 12) {
-			printf("thread count has been set to %i if it is a mistake the program can be terminated by ctrl+c\n", thread_count);
+		long core_count = sysconf(_SC_NPROCESSORS_ONLN);
+		if (thread_count > core_count*2) {
+			printf("thread count has been set to %i and your devices core count is %li if it is a mistake the program can be terminated by ctrl+c\n", thread_count, core_count);
 		}
 		break;
 	}
