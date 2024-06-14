@@ -2,6 +2,6 @@
 /err_tests/
 /showcase/
 .vscode
-.DS_store
+.DS_Store
 fractal_gen
 frct_*
